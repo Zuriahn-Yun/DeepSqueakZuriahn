@@ -34,6 +34,8 @@ if p.Results.forClustering
 else
     prompt = 'Select detection file(s) for viewing';
 end
+
+% handles structure, is the file that we want to analyze to my understanding
 [fileName, filePath] = uigetfile(fullfile(handles.data.settings.detectionfolder,'*.mat'),prompt,'MultiSelect', 'on');
 if isnumeric(fileName); ClusteringData = {}; return;end
 

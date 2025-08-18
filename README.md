@@ -25,6 +25,11 @@ Recommended Exploration Order:
 
 Start with FILE 47 (CreateClusteringData.m) - this orchestrates the full pipeline
 Examine FILE 13 and FILE 14 (the spectrogram creation functions)
+[FILE 13] Functions\CreateFocusSpectrogram.m
+[FILE 14] Functions\CreateSpectrogram.m
 Look at FILE 42 (squeakData.m) to understand the data structures
 Check FILE 52 to see how spectrograms feed into classification
+[FILE 52] Functions\Call Classification\SupervisedClassification_Callback.m
 
+8/18/2025
+handles.data.settings.detectionfolder - what is this, where is this

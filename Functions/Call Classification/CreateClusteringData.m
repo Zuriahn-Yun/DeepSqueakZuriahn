@@ -2,6 +2,10 @@ function [ClusteringData, clustAssign, freqRange, maxDuration, spectrogramOption
 %% This function prepares data for clustering
 % For each file selected, create a cell array with the image, and contour
 % of calls where Calls.Accept == 1
+handles.data.settings.detectionfolder = pwd; % current folder, or wherever your .mat files are
+handles.data.settings.EntropyThreshold = 0.5; % pick defaults
+handles.data.settings.AmplitudeThreshold = 0.1;
+
 
 p = inputParser;
 addParameter(p,'forClustering', false);
@@ -168,4 +172,12 @@ if p.Results.save_data && ~all(cellfun(@(x) isempty(fields(x)), audiodata)) % If
     if FileName ~= 0
         save(fullfile(PathName,FileName),'ClusteringData','-v7.3');
     end
+end
+
+% --- Always save CSV ---
+if ~isempty(ClusteringData)
+    writetable(ClusteringData, 'ClusteringDataOutput.csv');
+    disp('✅ Saved results to ClusteringDataOutput.csv');
+else
+    disp('⚠️ No calls found, no CSV written');
 end

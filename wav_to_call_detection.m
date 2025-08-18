@@ -1,5 +1,5 @@
 function [calls, audioReader] = wav_to_call_detection(wav_file_path, detection_options)
-% WAV_TO_CALL_DETECTION - Standalone function to detect calls from WAV file
+% WAV_TO_CALL_DETECTION - Standalone function to detect calls from WAV file with chunking support
 % 
 % Inputs:
 %   wav_file_path - (optional) Path to the .wav file. If empty, opens file picker
@@ -32,6 +32,7 @@ if nargin < 2 || isempty(detection_options)
     detection_options.freq_range = [15, 100];   % Frequency range in kHz
     detection_options.merge_gap = 0.01;         % Merge calls closer than 10ms
     detection_options.smoothing_window = 0.002; % 2ms smoothing window
+    detection_options.chunk_duration = 5;       % Chunk duration in minutes for large files
 end
 
 %% Load audio file
@@ -48,14 +49,26 @@ audioReader = struct();
 audioReader.audiodata.SampleRate = sample_rate;
 audioReader.AudioSamples = @(start_time, end_time) get_audio_segment(audio_samples, sample_rate, start_time, end_time);
 
-%% Create spectrogram for detection
+%% Create spectrogram for detection with chunking support
 fprintf('Creating spectrogram for detection...\n');
+
 % Use detection-appropriate spectrogram parameters
 window_size = round(sample_rate * 0.002); % 2ms window
 overlap = round(window_size * 0.8);       % 80% overlap
 nfft = round(sample_rate * 0.004);        % 4ms FFT
 
-[S, F, T] = batch_process_wav_files(audio_samples, window_size, overlap, nfft, sample_rate);
+% Check if file is too large and needs chunking
+file_duration_minutes = length(audio_samples) / sample_rate / 60;
+fprintf('Audio duration: %.2f minutes\n', file_duration_minutes);
+
+if file_duration_minutes > 10 % Use chunking for files longer than 10 minutes
+    fprintf('Large file detected. Processing in chunks...\n');
+    [S, F, T] = process_large_audio_chunked_internal(audio_samples, sample_rate, window_size, overlap, nfft, detection_options.chunk_duration);
+else
+    % Process normally for smaller files
+    [S, F, T] = spectrogram(audio_samples, window_size, overlap, nfft, sample_rate);
+end
+
 S_mag = abs(S);
 
 % Convert frequency to kHz for easier handling
@@ -154,6 +167,71 @@ fprintf('Saved results to: %s\n', output_file);
 
 end
 
+%% Internal chunking function
+function [combined_S, combined_F, combined_T] = process_large_audio_chunked_internal(audio_samples, sample_rate, window_size, overlap, nfft, chunk_duration_minutes)
+% Internal function to process audio in chunks
+
+% Calculate chunk parameters
+chunk_duration_seconds = chunk_duration_minutes * 60;
+chunk_samples = round(chunk_duration_seconds * sample_rate);
+total_samples = length(audio_samples);
+num_chunks = ceil(total_samples / chunk_samples);
+
+fprintf('Processing in %d chunks of %.1f minutes each...\n', num_chunks, chunk_duration_minutes);
+
+% Initialize storage for combined results
+combined_S = [];
+combined_T = [];
+combined_F = [];
+first_chunk = true;
+
+% Process each chunk
+for chunk_idx = 1:num_chunks
+    fprintf('Processing chunk %d/%d... ', chunk_idx, num_chunks);
+    
+    % Calculate chunk boundaries
+    start_idx = (chunk_idx - 1) * chunk_samples + 1;
+    end_idx = min(start_idx + chunk_samples - 1, total_samples);
+    
+    % Extract chunk
+    audio_chunk = audio_samples(start_idx:end_idx);
+    
+    % Calculate time offset for this chunk
+    time_offset = (start_idx - 1) / sample_rate;
+    
+    try
+        % Process chunk with spectrogram
+        [S_chunk, F_chunk, T_chunk] = spectrogram(audio_chunk, window_size, overlap, nfft, sample_rate);
+        
+        % Adjust time vector to account for chunk position
+        T_chunk_adjusted = T_chunk + time_offset;
+        
+        % Combine results
+        if first_chunk
+            combined_S = S_chunk;
+            combined_F = F_chunk; % Frequency vector is the same for all chunks
+            combined_T = T_chunk_adjusted;
+            first_chunk = false;
+        else
+            % Concatenate spectrogram matrices along time dimension
+            combined_S = [combined_S, S_chunk];
+            combined_T = [combined_T, T_chunk_adjusted];
+        end
+        
+        fprintf('Done (%.1fs processed)\n', length(audio_chunk)/sample_rate);
+        
+    catch ME
+        fprintf('ERROR: %s\n', ME.message);
+        % Continue with next chunk even if this one fails
+        continue;
+    end
+end
+
+fprintf('Combined spectrogram created successfully!\n');
+fprintf('Final dimensions: %d frequencies x %d time points\n', size(combined_S, 1), size(combined_S, 2));
+
+end
+
 %% Helper function to extract audio segments
 function audio_segment = get_audio_segment(audio_samples, sample_rate, start_time, end_time)
     start_idx = max(1, round(start_time * sample_rate));
@@ -209,29 +287,6 @@ function merged_calls = merge_nearby_calls(calls, merge_gap)
     fprintf('Merged %d calls into %d calls\n', length(calls), length(merged_calls));
 end
 
-%% Example usage function
-function example_usage()
-    % Example 1: Let user pick file interactively
-    [calls, audioReader] = wav_to_call_detection(); % Opens file picker
-    
-    % Example 2: With specific file and custom options
-    options = struct();
-    options.threshold = 0.15;           % Adjust based on your data
-    options.min_duration = 0.005;      % 5ms minimum
-    options.max_duration = 1.0;        % 1s maximum
-    options.freq_range = [20, 80];     % 20-80 kHz
-    options.merge_gap = 0.02;          % 20ms merge gap
-    
-    wav_file = 'path/to/your/file.wav';
-    [calls, audioReader] = wav_to_call_detection(wav_file, options);
-    
-    % Now you can use calls with your CreateFocusSpectrogram function
-    % for i = 1:length(calls)
-    %     [I, windowsize, noverlap, nfft, rate, box, s, fr, ti, audio, p] = ...
-    %         CreateFocusSpectrogram(calls(i), handles, true, options, audioReader);
-    % end
-end
-
 %% Batch processing function
 function batch_process_wav_files()
     % Process multiple WAV files at once
@@ -254,4 +309,10 @@ function batch_process_wav_files()
     else
         fprintf('No files selected.\n');
     end
+end
+
+%% Quick file picker function
+function quick_detection()
+    % Simple wrapper to quickly run detection with file picker
+    [calls, audioReader] = wav_to_call_detection(); % Opens file picker automatically
 end

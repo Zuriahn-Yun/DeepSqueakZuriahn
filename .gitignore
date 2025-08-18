@@ -5,3 +5,6 @@ Training/
 Detections/*.mat
 Audio/
 *.jpg
+/DeepSqueakAnalysis.txt
+/overview
+/pipeline

@@ -1,0 +1,10 @@
+DeepSqueak Processing Report
+==========================
+
+Audio file: Audio/VL1_25-07-19.wav
+Network used: Networks/2025.02.18.Mouse.YoloR3.mat
+Detection time: 58.74 seconds
+Total calls detected: 56
+Valid spectrograms: 56
+Clustering method: contour
+Number of clusters: 5

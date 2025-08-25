@@ -4,6 +4,9 @@ This repository contains MATLAB scripts that allow you to use DeepSqueak's core 
 
 ## Overview
 
+
+# Line 9 -> Pick audio File 
+
 The scripts provide a complete pipeline for:
 1. **Audio Processing**: Loading and analyzing audio files
 2. **Call Detection**: Using pre-trained neural networks to detect vocalizations
@@ -211,25 +214,3 @@ The scripts support multiple clustering approaches:
 1. Modify the `extract_features_with_network` function
 2. Implement your feature extraction logic
 3. Ensure output dimensions are consistent
-
-## Support and Contributions
-
-### Getting Help
-- Check the DeepSqueak documentation for function details
-- Review MATLAB error messages for specific issues
-- Ensure all dependencies are properly installed
-
-### Contributing
-- Test with different audio types and network architectures
-- Report bugs and suggest improvements
-- Share custom network integration examples
-
-## License
-
-These scripts are part of the DeepSqueak project and follow the same licensing terms.
-
-## Acknowledgments
-
-- DeepSqueak development team for the core functionality
-- MATLAB community for neural network and clustering tools
-- Contributors to the DeepSqueak ecosystem

@@ -40,8 +40,8 @@ save_results = true;
 
 % File formats to process (uncomment the ones you want)
 audio_extensions = {
-    '*.wav',   % WAV files
-    '*.flac',  % FLAC files
+    '*.wav',   %WAV files
+    '*.flac',  %FLAC files
     '*.mp3',   % MP3 files
     '*.m4a',   % M4A files
     '*.aiff',  % AIFF files

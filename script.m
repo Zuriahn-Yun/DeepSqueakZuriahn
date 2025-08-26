@@ -49,19 +49,19 @@ end
 audio_info = audioinfo(audio_file);
 fprintf('Audio file: %s\n', audio_file);
 fprintf('Duration: %.2f seconds\n', audio_info.Duration);
-fprintf('Sample rate: %d Hz\n', audio_info.SampleRate);
-fprintf('Channels: %d\n', audio_info.NumChannels);
+%fprintf('Sample rate: %d Hz\n', audio_info.SampleRate);
+%fprintf('Channels: %d\n', audio_info.NumChannels);
 
 %% Step 1: Load Neural Network
 fprintf('\n=== Step 1: Loading Neural Network ===\n');
-fprintf('Looking for network file: %s\n', network_file);
+%fprintf('Looking for network file: %s\n', network_file);
 if ~exist(network_file, 'file')
     error('Network file not found: %s', network_file);
 end
 
 fprintf('Loading network file...\n');
 network_data = load(network_file);
-fprintf('✓ Network file loaded successfully\n');
+%fprintf('Network file loaded successfully\n');
 fprintf('Network file: %s\n', network_file);
 fprintf('Network type: %s\n', class(network_data.detector));
 fprintf('Network variables: %s\n', strjoin(fieldnames(network_data), ', '));
@@ -76,15 +76,15 @@ fprintf('  - Score cutoff: %s\n', detection_settings{4});
 fprintf('  - Enable detection: %s\n', detection_settings{5});
 
 % Convert settings to numeric values
-fprintf('Converting settings to numeric values...\n');
+%fprintf('Converting settings to numeric values...\n');
 settings = zeros(1, length(detection_settings));
 for i = 1:length(detection_settings)
     settings(i) = str2double(detection_settings{i});
 end
 
 % Detect calls using SqueakDetect function
-fprintf('Running call detection with SqueakDetect...\n');
-fprintf('This may take a while depending on audio file length...\n');
+%fprintf('Running call detection with SqueakDetect...\n');
+%fprintf('This may take a while depending on audio file length...\n');
 tic;
 Calls = SqueakDetect(audio_file, network_data, 'Audio File', settings, 1, 1, 'Detection Network');
 detection_time = toc;
@@ -290,7 +290,7 @@ if exist(custom_network_path, 'file')
         options = custom_network.options;
         encoderNet = custom_network.encoderNet;
         
-        fprintf('✓ VAE network configuration loaded\n');
+        fprintf('VAE network configuration loaded\n');
         fprintf('  - Input image size: %s\n', mat2str(options.imageSize));
         fprintf('  - Frequency range: %s kHz\n', mat2str(options.freqRange));
         fprintf('  - Max duration: %.3f seconds\n', options.maxDuration);
@@ -299,7 +299,7 @@ if exist(custom_network_path, 'file')
         if ~isa(encoderNet, 'dlnetwork')
             error('Encoder network is not a valid dlnetwork object');
         end
-        fprintf('✓ Encoder network validation passed\n');
+        fprintf('Encoder network validation passed\n');
         
         % Initialize feature matrix - get dimensions from your network
         % Your encoder outputs 32-dimensional features, but cluster centers expect 48D

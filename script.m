@@ -557,7 +557,7 @@ try
     features = stripdims(zMean)';
     features = gather(extractdata(features));
     features = features(:)';
-    
+    % Test
 catch ME
     fprintf('Error in VAE feature extraction: %s\n', ME.message);
     rethrow(ME);

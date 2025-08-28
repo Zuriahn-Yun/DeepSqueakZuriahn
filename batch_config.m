@@ -8,7 +8,7 @@
 base_directory = 'Audio/';  % Change this to your audio base directory
 
 % Set the output base directory for results
-output_base_directory = 'batch_output/';
+output_base_directory = 'output/';
 
 %% Detection Settings
 % These are the same settings used in the DeepSqueak GUI

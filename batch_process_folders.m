@@ -138,7 +138,7 @@ fprintf('BATCH PROCESSING COMPLETE\n');
 fprintf('========================================\n');
 fprintf('Processed %d folders\n', length(audio_folders));
 fprintf('Output base directory: %s\n', output_base_directory);
-fprintf('\nBatch processing completed successfully!\n');
+%fprintf('\nBatch processing completed successfully!\n');
 
 %% Function to process a single audio file
 function process_single_audio_file(audio_file, network_file, output_folder, detection_settings, clustering_method, save_results, custom_network_path)

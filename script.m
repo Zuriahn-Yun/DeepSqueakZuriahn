@@ -6,7 +6,7 @@ clear; clc; close all;
 
 %% Configuration
 % Set paths and parameters
-audio_file = 'Audio/VL1_25-07-19.wav';  % Replace with your audio file path
+audio_file = 'FILEPATH';  % Replace with your audio file path
 network_file = 'Networks/2025.02.18.Mouse.YoloR3.mat';  % Choose your network
 output_folder = 'output/';  % Output folder for results
 
@@ -267,7 +267,7 @@ end
 fprintf('\n=== Step 7: Custom Neural Network Integration ===\n');
 
 % Load your trained clustering network
-custom_network_path = 'NNTest#1.mat';  % Your trained network
+custom_network_path = 'NN FILE PATH';  % Your trained network FILE PATH
 
 if exist(custom_network_path, 'file')
     fprintf('Loading custom clustering network: %s\n', custom_network_path);
